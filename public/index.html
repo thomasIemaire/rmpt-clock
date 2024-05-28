@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebSocket Timer</title>
+</head>
+
+<body>
+    <h1>WebSocket Timer Distant</h1>
+    <p id="level"></p>
+    <p id="timer"></p>
+    <button id="startButton" style="display: none;">Start</button>
+    <button id="pauseButton" style="display: none;">Pause</button>
+    <button id="resetButton" style="display: none;">Reset</button>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8100');
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'initial') {
+                document.getElementById('level').textContent = `${data.level}`;
+                displayTimer(data.timer);
+                if (data.isHost) {
+                    document.getElementById('startButton').style.display = 'inline';
+                    document.getElementById('pauseButton').style.display = 'inline';
+                    document.getElementById('resetButton').style.display = 'inline';
+                }
+            } else if (data.type === 'level') {
+                document.getElementById('level').textContent = `${data.level}`;
+            } else if (data.type === 'timer') {
+                displayTimer(data.timer);
+            } else if (data.type === 'host') {
+                document.getElementById('startButton').style.display = 'inline';
+                document.getElementById('pauseButton').style.display = 'inline';
+                document.getElementById('resetButton').style.display = 'inline';
+            } else if (data.type === 'end') {
+                document.getElementById('timer').textContent = `${data.message}`;
+            }
+        };
+
+        const displayTimer = (timer) => {
+            let minutes = Math.floor(timer / 60);
+            let seconds = timer % 60;
+            document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        document.getElementById('startButton').addEventListener('click', () => {
+            ws.send(JSON.stringify({ type: 'start' }));
+        });
+
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            ws.send(JSON.stringify({ type: 'pause' }));
+        });
+
+        document.getElementById('resetButton').addEventListener('click', () => {
+            ws.send(JSON.stringify({ type: 'reset' }));
+        });
+    </script>
+</body>
+
+</html>
