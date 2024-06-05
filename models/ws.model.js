@@ -19,17 +19,13 @@ class Ws {
 
     addConnectionInRoom(roomId, ws) {
         let room = this.getRoom(roomId);
-        if (!room) {
-            room = this.createRoom(roomId);
-        }
+        if (!room) room = this.createRoom(roomId);
         room.addConnection(ws);
     }
 
     removeConnectionInRoom(roomId, ws) {
         const room = this.getRoom(roomId);
-        if (room) {
-            room.removeConnection(ws);
-        }
+        if (room) room.removeConnection(ws);
     }
 }
 
