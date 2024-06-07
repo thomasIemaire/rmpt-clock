@@ -5,11 +5,14 @@ const url = require('url');
 const wss = new WebSocket.Server({ port: 8100 });
 const wsServer = new Ws();
 
-wss.on('connection', (ws, request) => {
-    const pathname = url.parse(request.url).pathname;
+wss.on('connection', (ws, req) => {
+    const pathname = url.parse(req.url).pathname;
     const roomId = pathname.substring(1);
 
-    wsServer.addConnectionInRoom(roomId, ws);
+    if (req.headers["x-access-token"])
+        wsServer.addConnectionInRoom(roomId, ws);
+    else
+        ws.send(JSON.stringify({ 'message': "No token provided!" }));
 
     ws.on('close', () => {
         wsServer.removeConnectionInRoom(roomId, ws);
